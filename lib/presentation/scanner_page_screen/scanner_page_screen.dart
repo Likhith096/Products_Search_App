@@ -4,7 +4,44 @@ import 'package:likhith_s_application2/widgets/app_bar/appbar_trailing_image.dar
 import 'package:likhith_s_application2/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:likhith_s_application2/core/app_export.dart';
-import 'package:camera/camera.dart';
+
+class ScannerPageScreen extends StatelessWidget {
+  const ScannerPageScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+        child: Scaffold(
+            appBar: _buildAppBar(context),
+            body: Container(
+                width: double.maxFinite,
+                padding: EdgeInsets.only(left: 15.h, top: 74.v, right: 15.h),
+                child: Column(children: [
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                          padding: EdgeInsets.only(left: 24.h),
+                          child: Text("Hello , Username!",
+                              style: CustomTextStyles.titleLargeBold23))),
+                  SizedBox(height: 45.v),
+                  _buildSearchScanner(context),
+                  SizedBox(height: 38.v),
+                  CustomImageView(
+                      imagePath: ImageConstant.imgScanner,
+                      height: 164.v,
+                      width: 159.h),
+                  SizedBox(height: 38.v),
+                  CustomElevatedButton(
+                      text: "SCAN",
+                      margin: EdgeInsets.only(left: 10.h, right: 3.h),
+                      buttonStyle: CustomButtonStyles.fillPrimary,
+                      buttonTextStyle: CustomTextStyles.titleLargeBold23,
+                      onPressed: () {
+                        onTapSCAN(context);
+                      }),
+                  SizedBox(height: 5.v)
+                ]))));
+  }
 
   /// Section Widget
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -50,154 +87,4 @@ import 'package:camera/camera.dart';
   onTapSCAN(BuildContext context) {
     //Navigator.pushNamed(context, AppRoutes.goForItPageTabContainerScreen);
   }
-
-
-
-
-class ScannerPageScreen extends StatefulWidget {
-  const ScannerPageScreen({Key? key}) : super(key: key);
-
-  @override
-  _ScannerPageScreenState createState() => _ScannerPageScreenState();
 }
-
-class _ScannerPageScreenState extends State<ScannerPageScreen> {
-  CameraController? _controller;
-  Future<void>? _initializeControllerFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _initCamera();
-  }
-
-  Future<void> _initCamera() async {
-    // Obtain a list of the available cameras on the device.
-    final cameras = await availableCameras();
-    // Get a specific camera from the list of available cameras.
-    final firstCamera = cameras.first;
-
-    _controller = CameraController(
-      // Get a specific camera from the list of available cameras.
-      firstCamera,
-      // Define the resolution to use.
-      ResolutionPreset.medium,
-    );
-
-    // Next, initialize the controller. This returns a Future.
-    _initializeControllerFuture = _controller!.initialize().then((_) {
-      // Ensure that the camera is initialized.
-      if (!mounted) {
-        return;
-      }
-      setState(() {}); // Rebuild the UI.
-    });
-  }
-
-  @override
-  void dispose() {
-    // Dispose of the controller when the widget is disposed.
-    _controller?.dispose();
-    super.dispose();
-  }
-
-
-// Inside your _ScannerPageScreenState class
-
-Widget _cameraPreviewWidget() {
-  if (_controller == null || !_controller!.value.isInitialized) {
-    return const Text(
-      'Loading...',
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 20.0,
-        fontWeight: FontWeight.w900,
-      ),
-    );
-  }
-
-  // Return the CameraPreview widget.
-  return AspectRatio(
-    aspectRatio: _controller!.value.aspectRatio,
-    child: CameraPreview(_controller!), // Camera preview
-  );
-}
-
-// Modify your onTapSCAN method to show/hide the camera
-bool isCameraVisible = false; // Add this line to your class
-
-void onTapSCAN(BuildContext context) {
-  setState(() {
-    isCameraVisible = !isCameraVisible; // Toggle camera visibility
-  });
-}
-
-@override
-@override
-Widget build(BuildContext context) {
-  return SafeArea(
-    child: Scaffold(
-      appBar: _buildAppBar(context),
-      body: Stack(
-        children: <Widget>[
-          // Include this as the base layer if you want it always visible
-          Container(
-            width: double.maxFinite,
-            padding: EdgeInsets.only(left: 15.h, top: 74.v, right: 15.h),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 24.h),
-                    child: Text(
-                      "Hello , Username!",
-                      style: CustomTextStyles.titleLargeBold23,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 45.v),
-                _buildSearchScanner(context),
-                SizedBox(height: 38.v),
-                if (!isCameraVisible) ...[ // Conditionally show this if the camera is not visible
-                  CustomImageView(
-                    imagePath: ImageConstant.imgScanner,
-                    height: 164.v,
-                    width: 159.h,
-                  ),
-                  SizedBox(height: 38.v),
-                ],
-                CustomElevatedButton(
-                  text: "SCAN",
-                  margin: EdgeInsets.only(left: 10.h, right: 3.h),
-                  buttonStyle: CustomButtonStyles.fillPrimary,
-                  buttonTextStyle: CustomTextStyles.titleLargeBold23,
-                  onPressed: () {
-                    onTapSCAN(context);
-                  },
-                ),
-                SizedBox(height: 5.v),
-              ],
-            ),
-          ),
-          // Camera preview overlay, it will cover the UI when visible
-          if (isCameraVisible) ...[
-            Positioned.fill(child: _cameraPreviewWidget()),
-            // Add a close button or similar to hide the camera preview again
-            Positioned(
-              top: 20,
-              right: 20,
-              child: IconButton(
-                icon: Icon(Icons.close, color: Colors.white),
-                onPressed: () => setState(() => isCameraVisible = false),
-              ),
-            ),
-          ],
-        ],
-      ),
-    ),
-  );
-}
-
-}
-

@@ -16,15 +16,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   TextEditingController editTextController = TextEditingController();
 
-  @override
-  Widget build(BuildContext context) {
+@override
+Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        width: double.infinity, // Setting width to maximum available width
-        padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 56.v),
-        child: SingleChildScrollView(
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        child: Container(
+          width: double.infinity, 
+          padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 56.v),
           child: Column(
             children: [
               CustomImageView(
@@ -33,13 +33,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 158.h,
               ),
               SizedBox(height: 22.v),
-              _buildFormBlock(context),
+              _buildFormBlock(context), 
               SizedBox(height: 8.v),
+              _buildSubmit(context), 
+              SizedBox(height: 20.v),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildSubmit(context),
     ),
   );
 }
@@ -88,9 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
   /// Section Widget
   Widget _buildSubmit(BuildContext context) {
     return CustomElevatedButton(
-        width: 106.h,
+        height: 38.v,
+        width: 103.h,
         text: "Submit",
-        margin: EdgeInsets.only(left: 126.h, right: 128.h, bottom: 51.v),
         buttonStyle: CustomButtonStyles.fillPrimary,
         onPressed: () {
           onTapSubmit(context);

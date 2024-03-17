@@ -38,9 +38,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <uses-permission android:name="android.permission.CAMERA" />
-<uses-feature android:name="android.hardware.camera.any" android:required="true" />
-<uses-feature android:name="android.hardware.camera.autofocus" />
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
