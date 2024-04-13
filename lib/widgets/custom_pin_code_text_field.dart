@@ -53,8 +53,8 @@ class CustomPinCodeTextField extends StatelessWidget {
         ],
         enableActiveFill: true,
         pinTheme: PinTheme(
-          fieldHeight: 44.h,
-          fieldWidth: 44.h,
+          fieldHeight: 28.h,
+          fieldWidth: 28.h,
           shape: PinCodeFieldShape.box,
           borderRadius: BorderRadius.circular(5.h),
           inactiveFillColor: theme.colorScheme.onPrimary,

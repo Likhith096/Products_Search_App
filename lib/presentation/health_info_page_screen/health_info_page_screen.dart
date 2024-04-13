@@ -94,7 +94,7 @@ class _HealthInfoPageScreen extends State<HealthInfoPageScreen> {
 
   /// Navigates to the profilePageScreen when the action is triggered.
   onTapLock(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.profilePageScreen);
+    Navigator.pushNamed(context, AppRoutes.goForItPage);
   }
 
   /// Navigates to the profilePageScreen when the action is triggered.

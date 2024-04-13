@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "623647988317",
+    "project_id": "purechoice",
+    "storage_bucket": "purechoice.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623647988317:android:ec8a3a5df1ee7ad1cfcbb4",
+        "android_client_info": {
+          "package_name": "com.likhithsapplication.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt8IQAvXnQ9Q0sxtSDUySwVOZ9ezBx60Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
