@@ -37,7 +37,7 @@ class ScannerPageScreen extends StatelessWidget {
                       buttonStyle: CustomButtonStyles.fillPrimary,
                       buttonTextStyle: CustomTextStyles.titleLargeBold23,
                       onPressed: () {
-                        onTapSCAN(context);
+                        Navigator.pushNamed(context,AppRoutes.scanPage);
                       }),
                   SizedBox(height: 5.v),
                                     CustomElevatedButton(

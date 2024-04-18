@@ -7,8 +7,7 @@ import '../presentation/health_info_page_screen/health_info_page_screen.dart';
 import '../presentation/profile_page_screen/profile_page_screen.dart';
 import '../presentation/no_go_page/no_go_page.dart';
 import '../presentation/go_for_it_page/go_for_it_page.dart';
-import '../presentation/search_page_screen/search_page_screen.dart';
-
+import '../presentation/scanner_page_screen/scan_page.dart';
 class AppRoutes {
   static const String loginScreen = '/login_screen';
 
@@ -26,7 +25,9 @@ class AppRoutes {
 
   static const String goForItPage = '/go_for_it_page';
 
-   static const String searchPageScreen = '/search_page_screen';
+  static const String searchPageScreen = '/search_page_screen';
+
+  static const String scanPage = '/scan_page'; 
 
 
   static Map<String, WidgetBuilder> routes = {
@@ -38,5 +39,7 @@ class AppRoutes {
     noGoPage: (context) => NoGoPage(),
     searchPageScreen:(context) => SearchPageScreen(),
     goForItPage: (context) => GoForItPage(),
+    scanPage: (context) => CameraApp(),
+
   };
 }

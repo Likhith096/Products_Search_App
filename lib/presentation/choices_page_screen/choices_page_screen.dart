@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:likhith_s_application2/widgets/app_bar/custom_app_bar.dart';
 import 'package:likhith_s_application2/widgets/app_bar/appbar_leading_image.dart';
 import 'package:likhith_s_application2/widgets/app_bar/appbar_trailing_image.dart';
@@ -13,8 +14,8 @@ class ChoicesPageScreen extends StatefulWidget {
 }
 
 class _ChoicesPageScreenState extends State<ChoicesPageScreen> {
-  String _dietaryPreference = "";
-  String _healthConcern = "";
+  List<String> selectedHealthConcerns = [];
+  String? _dietaryPreference;
 
   List<String> healthConcerns = [
     "High cholesterol",
@@ -77,58 +78,101 @@ class _ChoicesPageScreenState extends State<ChoicesPageScreen> {
               margin: EdgeInsets.symmetric(horizontal: 20.h),)
         ]);
   }
+  
 
   /// Section Widget
    Widget _buildDietaryPreferences() {
   return Container(
-            width: 332.h,
-        padding: EdgeInsets.symmetric(horizontal: 34.h, vertical: 16.v),
-        decoration: AppDecoration.outlineBlack
-            .copyWith(borderRadius: BorderRadiusStyle.roundedBorder15),
-  child : Column(
-      children: dietaryPref.map((concern) {
+    width: 332.h,
+    padding: EdgeInsets.symmetric(horizontal: 34.h, vertical: 16.v),
+    decoration: AppDecoration.outlineBlack.copyWith(
+      borderRadius: BorderRadiusStyle.roundedBorder15,
+    ),
+    child: Column(
+      children: dietaryPref.map((preference) {
         return RadioListTile<String>(
-          title: Text(concern),
-          value: concern,
+          title: Text(preference),
+          value: preference,
           groupValue: _dietaryPreference,
           onChanged: (value) {
             setState(() {
-             _dietaryPreference = value!;
+              _dietaryPreference = value!;
             });
           },
         );
       }).toList(),
-    ));
-  }
+    ),
+  );
+}
+
   /// Section Widget
    Widget _buildHealthConcerns() {
     return Container(
-            width: 332.h,
-        padding: EdgeInsets.symmetric(horizontal: 34.h, vertical: 16.v),
-        decoration: AppDecoration.outlineBlack
-            .copyWith(borderRadius: BorderRadiusStyle.roundedBorder15),
-    child : Column(
-      children: healthConcerns.map((concern) {
-        return RadioListTile<String>(
-          title: Text(concern),
-          value: concern,
-          groupValue: _healthConcern,
-          onChanged: (value) {
-            setState(() {
-              _healthConcern = value!;
-            });
-          },
-        );
-      }).toList(),
-    ));
+      width: 332.h,
+      padding: EdgeInsets.symmetric(horizontal: 34.h, vertical: 16.v),
+      decoration: AppDecoration.outlineBlack.copyWith(
+        borderRadius: BorderRadiusStyle.roundedBorder15,
+      ),
+      child: Column(
+        children: healthConcerns.map((concern) {
+          bool isChecked = selectedHealthConcerns.contains(concern);
+          return CheckboxListTile(
+            title: Text(concern),
+            value: isChecked,
+            onChanged: (newValue) {
+              setState(() {
+                if (newValue != null) {
+                  if (newValue) {
+                    selectedHealthConcerns.add(concern);
+                  } else {
+                    selectedHealthConcerns.remove(concern);
+                  }
+                }
+              });
+            },
+          );
+        }).toList(),
+      ),
+    );
   }
-
   /// Navigates to the healthInfoPageScreen when the action is triggered.
 void onTapNext() {
-    // Perform navigation or state management as needed
-    print('Dietary Preference: $_dietaryPreference');
-    print('Health Concern: $_healthConcern');
-    // Navigate to the next screen or save the data
-    Navigator.pushNamed(context, AppRoutes.healthInfoPageScreen);
+  if (_dietaryPreference != null && selectedHealthConcerns.isNotEmpty) {
+    print('Selected Dietary Preferences: $_dietaryPreference');
+    print('Selected Health Concerns: $selectedHealthConcerns');
+     Map<String, dynamic> data = {
+      'DietaryPreference': _dietaryPreference,
+      'HealthConcerns': selectedHealthConcerns,
+    };
+
+    // Add data to Firestore
+    FirebaseFirestore.instance.collection('HealthInfo').add(data)
+      .then((value) {
+        print('Data saved to Firestore with document ID: ${value.id}');
+        Navigator.pushNamed(context, AppRoutes.healthInfoPageScreen);
+      })
+      .catchError((error) {
+        // Handle errors
+        print('Failed to save data: $error');
+        });
+      } 
+      else {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Selection Required'),
+          content: Text('Please select at least one dietary preference and one health concern.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
+}
+
 }

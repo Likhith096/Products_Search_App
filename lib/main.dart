@@ -11,11 +11,10 @@ void main() async {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+  ThemeHelper().changeTheme('primary');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
 );
-  ThemeHelper().changeTheme('primary');
-
   runApp(MyApp());
 }
 

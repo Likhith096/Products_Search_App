@@ -5,6 +5,7 @@ import 'package:likhith_s_application2/core/app_export.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 // ignore_for_file: must_be_immutable
@@ -12,7 +13,6 @@ class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
 
   _LoginScreenState createState() => _LoginScreenState();
-
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -52,13 +52,13 @@ Widget build(BuildContext context) {
 
   /// Section Widget
   Widget _buildGetOTP(BuildContext context) {
-    // var countryCode = '+91';
+    var countryCode = '+91';
     return CustomElevatedButton(     
       onPressed: () async {
       await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: "+91 866 048 6877", 
+        phoneNumber: countryCode + editTextController.text.trim(), 
+
         verificationCompleted: (PhoneAuthCredential credential) async {
-          // This callback gets called when verification is done automatically
           await FirebaseAuth.instance.signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
@@ -132,7 +132,7 @@ Widget _buildOtpView(BuildContext context) {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text("Mobile number", style: theme.textTheme.titleMedium),
           SizedBox(height: 20.v),
-          CustomTextFormField(controller: editTextController),
+          CustomTextFormField(controller: editTextController,textInputType: TextInputType.phone),
           SizedBox(height: 53.v),
           _buildGetOTP(context),
           SizedBox(height: 54.v),
@@ -155,14 +155,38 @@ Widget _buildOtpView(BuildContext context) {
         smsCode: otpController.text.trim(),
       );
 
-      try {
-        await FirebaseAuth.instance.signInWithCredential(credential);
-        log("User Created");
+    try {
+  UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+  log("User Created");
+  String? phoneNumber = userCredential.user?.phoneNumber;
 
-        Navigator.pushNamed(context, AppRoutes.choicesPageScreen); // Navigate if OTP is correct
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Invalid OTP. Please try again."))); // Show error toast
-      }
+// Check if phoneNumber is not null
+if (phoneNumber != null) {
+  // Query Firestore to check if the phone number already exists
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .where('phoneNumber', isEqualTo: phoneNumber)
+      .get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    // Phone number already exists, do not create a new document
+    log("Phone number already exists in Firestore");
+  } else {
+    await FirebaseFirestore.instance.collection('users').add({
+      'phoneNumber': phoneNumber
+    });
+    log("User phone number added to Firestore");
+  }
+} else {
+  log("Phone number is null");
+}
+  // Navigate if OTP is correct
+  Navigator.pushNamed(context, AppRoutes.choicesPageScreen);
+} catch (e) {
+  log("Authentication failed: $e");
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Invalid OTP. Please try again.")));
+}
+
     },
   );
   }
