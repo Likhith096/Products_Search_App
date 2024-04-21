@@ -7,20 +7,17 @@ import 'package:likhith_s_application2/widgets/app_bar/appbar_trailing_image.dar
 
 // ignore_for_file: must_be_immutable
 class GoForItPage extends StatefulWidget {
-  const GoForItPage({Key? key})
-      : super(
-          key: key,
-        );
+  final String productName;
+
+  const GoForItPage({Key? key, required this.productName}) : super(key: key);
 
   @override
   GoForItPageState createState() => GoForItPageState();
 }
 
-class GoForItPageState extends State<GoForItPage>
-    with AutomaticKeepAliveClientMixin<GoForItPage> {
-  @override
-  bool get wantKeepAlive => true;
-  @override
+
+class GoForItPageState extends State<GoForItPage>{
+  @override 
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -66,12 +63,12 @@ class GoForItPageState extends State<GoForItPage>
             ),
             child: Text(
               "Ingredient alert",
-              style: CustomTextStyles.titleMediumOnPrimary,
+              style: CustomTextStyles.titleMediumOnPrimary.copyWith(color:Colors.green),
             ),
           ),
           SizedBox(height: 10.v),
           Text(
-            "Nutralite Choco  Spread",
+            widget.productName,
             style: theme.textTheme.titleMedium,
           ),
           SizedBox(height: 3.v),

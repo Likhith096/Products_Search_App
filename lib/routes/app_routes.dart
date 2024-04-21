@@ -5,8 +5,8 @@ import '../presentation/scanner_page_screen/scanner_page_screen.dart';
 import '../presentation/choices_page_screen/choices_page_screen.dart';
 import '../presentation/health_info_page_screen/health_info_page_screen.dart';
 import '../presentation/profile_page_screen/profile_page_screen.dart';
-import '../presentation/no_go_page/no_go_page.dart';
-import '../presentation/go_for_it_page/go_for_it_page.dart';
+// import '../presentation/no_go_page/no_go_page.dart';
+// import '../presentation/go_for_it_page/go_for_it_page.dart';
 import '../presentation/scanner_page_screen/scan_page.dart';
 class AppRoutes {
   static const String loginScreen = '/login_screen';
@@ -29,6 +29,7 @@ class AppRoutes {
 
   static const String scanPage = '/scan_page'; 
 
+  static const String productResultScreen = '/ProductResultsScreen';
 
   static Map<String, WidgetBuilder> routes = {
     loginScreen: (context) => LoginScreen(),
@@ -36,10 +37,7 @@ class AppRoutes {
     choicesPageScreen: (context) => ChoicesPageScreen(),
     healthInfoPageScreen: (context) => HealthInfoPageScreen(),
     profilePageScreen: (context) => ProfilePageScreen(),
-    noGoPage: (context) => NoGoPage(),
     searchPageScreen:(context) => SearchPageScreen(),
-    goForItPage: (context) => GoForItPage(),
     scanPage: (context) => CameraApp(),
-
   };
 }

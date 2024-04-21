@@ -1,39 +1,109 @@
-import 'widgets/nogopage_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:likhith_s_application2/core/app_export.dart';
+import 'package:likhith_s_application2/widgets/app_bar/custom_app_bar.dart';
+import 'package:likhith_s_application2/widgets/app_bar/appbar_leading_image.dart';
+import 'package:likhith_s_application2/widgets/app_bar/appbar_trailing_image.dart';
+import '../go_for_it_page/widgets/goforitpage_item_widget.dart';
 
 // ignore_for_file: must_be_immutable
 class NoGoPage extends StatefulWidget {
-  const NoGoPage({Key? key})
-      : super(
-          key: key,
-        );
+  final String productName;
+
+  const NoGoPage({Key? key, required this.productName}) : super(key: key);
 
   @override
   NoGoPageState createState() => NoGoPageState();
 }
 
-class NoGoPageState extends State<NoGoPage>
-    with AutomaticKeepAliveClientMixin<NoGoPage> {
-  @override
-  bool get wantKeepAlive => true;
+class NoGoPageState extends State<NoGoPage>{
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: theme.colorScheme.onPrimary,
+        appBar: _buildAppBar(context),
         body: Container(
           width: double.maxFinite,
           decoration: AppDecoration.fillOnPrimary,
           child: Column(
             children: [
               SizedBox(height: 17.v),
-              _buildThirtyThree(context),
+              _buildFrameTwentyThree(context),
+              SizedBox(height: 17.v),
+              _buildTwentySix(context),
             ],
           ),
         ),
       ),
     );
+  }
+
+   Widget _buildFrameTwentyThree(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 22.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 39.h,
+        vertical: 12.v,
+      ),
+      decoration: AppDecoration.outlineBlack.copyWith(
+        borderRadius: BorderRadiusStyle.roundedBorder15,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 238.h,
+            padding: EdgeInsets.symmetric(
+              horizontal: 30.h,
+              vertical: 2.v,
+            ),
+            decoration: AppDecoration.fillOnPrimaryContainer.copyWith(
+              borderRadius: BorderRadiusStyle.roundedBorder8,
+            ),
+            child: Text(
+              "Ingredient alert",
+              style: CustomTextStyles.titleMediumOnPrimary.copyWith(color:Colors.red),
+            ),
+          ),
+          SizedBox(height: 10.v),
+          Text(
+            widget.productName,
+            style: theme.textTheme.titleMedium,
+          ),
+          SizedBox(height: 3.v),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: EdgeInsets.only(left: 8.h),
+              child: Text(
+                "This is No Go Page",
+                style: theme.textTheme.bodyLarge,
+              ),
+            ),
+          ),
+          SizedBox(height: 8.v),
+          CustomImageView(
+            imagePath: ImageConstant.imgImage1,
+            height: 82.v,
+            width: 147.h,
+          )
+        ],
+      ),
+    );
+  }
+
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return CustomAppBar(
+        leadingWidth: 92.h,
+        leading: AppbarLeadingImage(
+            imagePath: ImageConstant.imgIcon,
+            margin: EdgeInsets.only(left: 19.h, top: 1.v)),
+        actions: [
+          AppbarTrailingImage(
+              imagePath: ImageConstant.imgLock,
+              margin: EdgeInsets.symmetric(horizontal: 20.h),)
+        ]);
   }
 
   /// Section Widget
@@ -108,7 +178,7 @@ class NoGoPageState extends State<NoGoPage>
             physics: NeverScrollableScrollPhysics(),
             itemCount: 4,
             itemBuilder: (context, index) {
-              return NogopageItemWidget();
+              return GoforitpageItemWidget();
             },
           ),
           SizedBox(height: 8.v),
@@ -118,7 +188,7 @@ class NoGoPageState extends State<NoGoPage>
   }
 
   /// Section Widget
-  Widget _buildThirtyThree(BuildContext context) {
+  Widget _buildTwentySix(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 23.h),
       child: Column(

@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'dart:convert';
-import 'package:googleapis/vision/v1.dart' as vision;
-import 'package:googleapis_auth/auth_io.dart';
-
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import './widgets/ProductResultsScreen.dart';
 
 class Scan {
   late List<CameraDescription> cameras;
@@ -36,6 +34,36 @@ class Scan {
   }
 }
 
+Future<void> queryProduct(String query,Function(List<Map<String, dynamic>>) onResults) async {
+  // Fetch all products from Firestore
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('Products')
+      .get();
+
+  // Convert the query to lowercase for case-insensitive comparison
+  String normalizedQuery = query.toLowerCase();
+  List<Map<String, dynamic>> matchedProducts = [];
+
+  // Iterate through each document in the query snapshot
+  for (var doc in querySnapshot.docs) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    String productName = data['Name'].toString().toLowerCase();
+
+    // Check if the product name contains the query string
+    if (productName.contains(normalizedQuery)) {
+        matchedProducts.add(data);
+        print('Product found: $data');
+    }
+  }
+
+  if (matchedProducts.isEmpty) {
+    print('No products found for: $query');
+  }
+  onResults(matchedProducts); 
+}
+
+
+
 class CameraApp extends StatefulWidget {
   @override
   _CameraAppState createState() => _CameraAppState();
@@ -62,83 +90,45 @@ class _CameraAppState extends State<CameraApp> {
   }
 
 
-  Future<void> _processImage(String imagePath) async {
-  // Load the image file from the local path
-  final imageBytes = File(imagePath).readAsBytesSync();
+ Future<void> _processImage(BuildContext context, String imagePath) async {
+  final inputImage = InputImage.fromFilePath(imagePath);
+  String imgPath = imagePath;
+  final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  List<Map<String, dynamic>> allMatchedProducts = [];
 
-  // Convert the Uint8List to a base64 encoded string
-  final base64Image = base64Encode(imageBytes);
+  try {
+    final RecognizedText result = await textRecognizer.processImage(inputImage);
+    List<String> words = result.blocks
+        .expand((b) => b.lines)
+        .expand((line) => line.text.split(' '))
+        .where((word) => word.length > 1)
+        .toSet()
+        .toList();
 
-  // Create a JSON request payload
-  final requestJson = {
-    "requests": [
-      {
-        "image": {"content": base64Image},
-        "features": [{"type": "LABEL_DETECTION"}]
-      }
-    ]
-  };
-
-  // Make a POST request to the Vision API
-  final apiKey = 'AIzaSyCox3nrjBmRiVltV-q_7ONXbcQzI_unHCw'; // Replace with your actual API key
-  final response = await HttpClient().postUrl(Uri.parse(
-      'https://vision.googleapis.com/v1/images:annotate?key=$apiKey'));
-  response.headers.contentType =
-      ContentType('application', 'json', charset: 'utf-8');
-  response.write(jsonEncode(requestJson));
-
-  // Read the response
-  final httpResponse = await response.close();
-  final responseBody = await httpResponse.transform(utf8.decoder).join();
-
-  // Parse and print the response
-  final Map<String, dynamic> data = jsonDecode(responseBody);
-  // Extract only the main words (descriptions) from the label annotations
-  final List<String> mainWords = [];
-  final List<dynamic> labelAnnotations = data['responses'][0]['labelAnnotations'];
-  for (var annotation in labelAnnotations) {
-    final String description = annotation['description'];
-    mainWords.add(description);
+    for (String word in words) {
+      await queryProduct(word, (List<Map<String, dynamic>> matchedProducts) {
+        allMatchedProducts.addAll(matchedProducts);
+      });
+    }
+    if (allMatchedProducts.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductResultsScreen(matchedProducts: allMatchedProducts, imagePath:imgPath),
+            ),
+          );
+        }
+  } catch (e) {
+    print('Error processing image: $e');
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Failed to recognize text from the image.'),
+    ));
+  } finally {
+    textRecognizer.close();
   }
-
-// Print or store the main words
-print(mainWords);
+}
 
 
-    // // Process the response to extract labels
-    // if (response.responses != null && response.responses!.isNotEmpty) {
-    //   final labels = response.responses![0].labelAnnotations;
-    //   if (labels != null && labels.isNotEmpty) {
-    //     // Check if any of the labels match chips, ice cream, or biscuits
-    //     final relevantLabels = labels
-    //         .where((label) =>
-    //             label.description.toLowerCase().contains('chips') ||
-    //             label.description.toLowerCase().contains('ice cream') ||
-    //             label.description.toLowerCase().contains('biscuits'))
-    //         .toList();
-
-    //     if (relevantLabels.isNotEmpty) {
-    //       // Image contains chips, ice cream, or biscuits
-    //       // Proceed with your logic here
-    //     } else {
-    //       // Image does not contain chips, ice cream, or biscuits
-    //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //         content: Text('Image does not contain chips, ice cream, or biscuits.'),
-    //       ));
-    //     }
-    //   } else {
-    //     // No labels detected
-    //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //       content: Text('No labels detected in the image.'),
-    //     ));
-    //   }
-    // } else {
-    //   // No response from the Vision API
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //     content: Text('Failed to analyze the image.'),
-    //   ));
-    // }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,14 +153,7 @@ print(mainWords);
               : () async {
                   final imagePath = await _scan.takePicture();
                   if (imagePath.isNotEmpty) {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) =>
-                    //         DisplayPictureScreen(imagePath: imagePath),
-                    //),
-                    //);
-                    await _processImage(imagePath);
+                    await _processImage(context,imagePath);
                   } else {
                     // Show a snackbar or dialog to inform the user about the error
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -183,23 +166,4 @@ print(mainWords);
       ),
     );
   }
-
-
-
-}
-
-class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
-
-  const DisplayPictureScreen({Key? key, required this.imagePath})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Display the Picture')),
-      body: Image.file(File(imagePath)),
-    );
-  }
-
 }
